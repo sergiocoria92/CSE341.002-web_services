@@ -41,5 +41,5 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// 👇 ESTA LÍNEA ES LA IMPORTANTE
+
 module.exports = router;

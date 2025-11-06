@@ -1,0 +1,11 @@
+### Local - all contacts
+GET http://localhost:8080/contacts
+
+### Local - one contact
+GET http://localhost:8080/contacts/690c14b783a35cd5a4644310
+
+### Render - all contacts
+GET https://cse341-002-web-services-m6u1.onrender.com/contacts
+
+### Render - one contact
+GET https://cse341-002-web-services-m6u1.onrender.com/contacts/690c14b783a35cd5a4644310

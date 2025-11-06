@@ -1,10 +1,10 @@
 // server.js
 const dotenv = require('dotenv');
-dotenv.config(); // 👈 primero leemos .env
+dotenv.config(); // 👈leemos .env
 
 const express = require('express');
 const cors = require('cors');
-const { connectToServer } = require('./db/conn'); // 👈 ahora sí podemos requerir la conexión
+const { connectToServer } = require('./db/conn'); //  conexión
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -12,12 +12,12 @@ const port = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 
-// ruta de prueba
+// test
 app.get('/', (req, res) => {
   res.send('Hello World from CSE 341!');
 });
 
-// rutas de contactos
+// contacts
 app.use('/contacts', require('./routes/contacts'));
 
 connectToServer((err) => {
