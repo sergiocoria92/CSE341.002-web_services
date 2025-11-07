@@ -1,11 +1,99 @@
-### Local - all contacts
-GET http://localhost:8080/contacts
+############
+# VARIABLES
+############
+# Local server (elige el puerto que uses realmente)
+@localBase = http://localhost:8080
+# @localBase = http://localhost:3000
 
-### Local - one contact
-GET http://localhost:8080/contacts/690c14b783a35cd5a4644310
+# Render (reemplaza con tu URL si cambia)
+@renderBase = https://cse341-002-web-services-m6u1.onrender.com
 
-### Render - all contacts
-GET https://cse341-002-web-services-m6u1.onrender.com/contacts
+# Un ID válido de tu colección (cámbialo cuando crees uno nuevo)
+@contactId = 690c14b783a35cd5a4644310
 
-### Render - one contact
-GET https://cse341-002-web-services-m6u1.onrender.com/contacts/690c14b783a35cd5a4644310
+
+#########################
+# LOCAL — CONTACTS
+#########################
+
+### Local - GET all
+GET {{localBase}}/contacts
+
+### Local - GET by id
+GET {{localBase}}/contacts/{{contactId}}
+
+### Local - POST create
+POST {{localBase}}/contacts
+Content-Type: application/json
+
+{
+  "firstName": "Ana",
+  "lastName": "Lopez",
+  "email": "ana@example.com",
+  "favoriteColor": "blue",
+  "birthday": "1992-05-12"
+}
+
+### Local - PUT replace (todos los campos requeridos)
+PUT {{localBase}}/contacts/{{contactId}}
+Content-Type: application/json
+
+{
+  "firstName": "Ana Maria",
+  "lastName": "Lopez",
+  "email": "ana@example.com",
+  "favoriteColor": "green",
+  "birthday": "1992-05-12"
+}
+
+### Local - DELETE
+DELETE {{localBase}}/contacts/{{contactId}}
+
+
+#########################
+# RENDER — CONTACTS
+#########################
+
+### Render - GET all
+GET {{renderBase}}/contacts
+
+### Render - GET by id
+GET {{renderBase}}/contacts/{{contactId}}
+
+### Render - POST create
+POST {{renderBase}}/contacts
+Content-Type: application/json
+
+{
+  "firstName": "Luis",
+  "lastName": "Perez",
+  "email": "luis@example.com",
+  "favoriteColor": "red",
+  "birthday": "1991-08-20"
+}
+
+### Render - PUT replace
+PUT {{renderBase}}/contacts/{{contactId}}
+Content-Type: application/json
+
+{
+  "firstName": "Luis Alberto",
+  "lastName": "Perez",
+  "email": "luis@example.com",
+  "favoriteColor": "yellow",
+  "birthday": "1991-08-20"
+}
+
+### Render - DELETE
+DELETE {{renderBase}}/contacts/{{contactId}}
+
+
+#########################
+# SWAGGER (OPCIONAL)
+#########################
+
+### Render - Swagger UI
+GET {{renderBase}}/api-docs
+
+### Local - Swagger UI
+GET {{localBase}}/api-docs

@@ -1,28 +1,51 @@
-// db/conn.js
-const { MongoClient } = require('mongodb');
+// db/conn.js — ES Modules
+import { MongoClient } from 'mongodb';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error('Missing environment variable MONGODB_URI');
+}
 
-// .env
 const client = new MongoClient(uri);
+let _db;
 
-let dbConnection;
-
-module.exports = {
-  //  server.js
-  connectToServer: async (callback) => {
+/**
+ * Connect once and keep the DB reference.
+ * If your connection string does not include a DB name,
+ * set MONGODB_DB in your .env (optional).
+ */
+export function connectToServer(cb) {
+  (async () => {
     try {
-      await client.connect();
-      
-      dbConnection = client.db('cse341');
+      if (!_db) {
+        await client.connect();
+        const dbName = process.env.MONGODB_DB; // optional override
+        _db = dbName ? client.db(dbName) : client.db();
+      }
       console.log('✅ Connected to MongoDB');
-      return callback();
+      cb && cb();
     } catch (err) {
       console.error('❌ Mongo connection error:', err);
-      return callback(err);
+      cb ? cb(err) : null;
     }
-  },
+  })();
+}
 
-  // conexion
-  getDb: () => dbConnection,
-};
+/** Get the initialized DB instance. */
+export function getDb() {
+  if (!_db) {
+    throw new Error('DB not initialized. Call connectToServer() first.');
+  }
+  return _db;
+}
+
+/** (Optional) Close the client when shutting down the app. */
+export async function closeClient() {
+  if (client) {
+    await client.close();
+    _db = undefined;
+  }
+}
