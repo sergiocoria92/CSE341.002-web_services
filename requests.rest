@@ -1,30 +1,33 @@
 ############
 # VARIABLES
 ############
-# Local server (elige el puerto que uses realmente)
 @localBase = http://localhost:8080
 # @localBase = http://localhost:3000
 
-# Render (reemplaza con tu URL si cambia)
 @renderBase = https://cse341-002-web-services-m6u1.onrender.com
 
-# Un ID válido de tu colección (cámbialo cuando crees uno nuevo)
-@contactId = 690c14b783a35cd5a4644310
+# Cambia esta variable según quieras probar local o render
+@base = {{renderBase}}
+# @base = {{localBase}}
+
+# Id por defecto (se sobreescribe cuando hagas POST con @name + script)
+@contactId = 000000000000000000000000
+
+### Headers comunes
+@json = application/json
 
 
 #########################
-# LOCAL — CONTACTS
+# GET all
 #########################
+GET {{base}}/contacts
 
-### Local - GET all
-GET {{localBase}}/contacts
-
-### Local - GET by id
-GET {{localBase}}/contacts/{{contactId}}
-
-### Local - POST create
-POST {{localBase}}/contacts
-Content-Type: application/json
+#########################
+# POST create (guarda id automáticamente)
+#########################
+# @name createContact
+POST {{base}}/contacts
+Content-Type: {{json}}
 
 {
   "firstName": "Ana",
@@ -34,9 +37,27 @@ Content-Type: application/json
   "birthday": "1992-05-12"
 }
 
-### Local - PUT replace (todos los campos requeridos)
-PUT {{localBase}}/contacts/{{contactId}}
-Content-Type: application/json
+> {%
+// Guarda el id devuelto para los siguientes requests
+const body = JSON.parse(response.body);
+if (body && body.id) {
+  client.global.set("contactId", body.id);
+  console.log("Saved contactId:", body.id);
+} else {
+  console.log("No id found in response");
+}
+%}
+
+#########################
+# GET by id (usa el id guardado)
+#########################
+GET {{base}}/contacts/{{contactId}}
+
+#########################
+# PUT replace (todos los campos)
+#########################
+PUT {{base}}/contacts/{{contactId}}
+Content-Type: {{json}}
 
 {
   "firstName": "Ana Maria",
@@ -46,54 +67,13 @@ Content-Type: application/json
   "birthday": "1992-05-12"
 }
 
-### Local - DELETE
-DELETE {{localBase}}/contacts/{{contactId}}
+#########################
+# DELETE
+#########################
+DELETE {{base}}/contacts/{{contactId}}
 
 
 #########################
-# RENDER — CONTACTS
+# SWAGGER (opcional)
 #########################
-
-### Render - GET all
-GET {{renderBase}}/contacts
-
-### Render - GET by id
-GET {{renderBase}}/contacts/{{contactId}}
-
-### Render - POST create
-POST {{renderBase}}/contacts
-Content-Type: application/json
-
-{
-  "firstName": "Luis",
-  "lastName": "Perez",
-  "email": "luis@example.com",
-  "favoriteColor": "red",
-  "birthday": "1991-08-20"
-}
-
-### Render - PUT replace
-PUT {{renderBase}}/contacts/{{contactId}}
-Content-Type: application/json
-
-{
-  "firstName": "Luis Alberto",
-  "lastName": "Perez",
-  "email": "luis@example.com",
-  "favoriteColor": "yellow",
-  "birthday": "1991-08-20"
-}
-
-### Render - DELETE
-DELETE {{renderBase}}/contacts/{{contactId}}
-
-
-#########################
-# SWAGGER (OPCIONAL)
-#########################
-
-### Render - Swagger UI
-GET {{renderBase}}/api-docs
-
-### Local - Swagger UI
-GET {{localBase}}/api-docs
+GET {{base}}/api-docs
