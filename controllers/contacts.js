@@ -1,57 +1,119 @@
+// controllers/contacts.js
 import { ObjectId } from 'mongodb';
-import { getDb } from '../db/connection.js';
+import { getDb } from '../db/conn.js';
 
-const coll = async () => (await getDb()).collection('contacts');
+const coll = () => getDb().collection('contacts');
 
-export async function getAll(req, res) {
-  const items = await (await coll()).find().toArray();
-  res.json(items);
+// GET /contacts → all
+export async function getAll(_req, res) {
+  try {
+    const items = await coll().find({}).toArray();
+    res.status(200).json(items);
+  } catch (err) {
+    console.error('Error getting contacts:', err);
+    res.status(500).json({ message: 'Error getting contacts' });
+  }
 }
 
+// GET /contacts/:id → one
 export async function getById(req, res) {
-  const id = req.params.id;
-  if (!ObjectId.isValid(id)) return res.status(400).json({ error: 'invalid id' });
-  const doc = await (await coll()).findOne({ _id: new ObjectId(id) });
-  if (!doc) return res.status(404).json({ error: 'not found' });
-  res.json(doc);
+  try {
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid id' });
+    }
+
+    const doc = await coll().findOne({ _id: new ObjectId(id) });
+
+    if (!doc) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    res.status(200).json(doc);
+  } catch (err) {
+    console.error('Error getting contact:', err);
+    res.status(500).json({ message: 'Error getting contact' });
+  }
 }
 
+// POST /contacts → create
 export async function createOne(req, res) {
-  const { firstName, lastName, email, favoriteColor, birthday } = req.body;
-  if (!firstName || !lastName || !email || !favoriteColor || !birthday) {
-    return res.status(400).json({ error: 'all fields are required' });
+  try {
+    const { firstName, lastName, email, favoriteColor, birthday } = req.body;
+
+    if (!firstName || !lastName || !email || !favoriteColor || !birthday) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const out = await coll().insertOne({
+      firstName,
+      lastName,
+      email,
+      favoriteColor,
+      birthday,
+    });
+
+    // Return the newly created id
+    res.status(201).json({ id: out.insertedId });
+  } catch (err) {
+    console.error('Error creating contact:', err);
+    res.status(500).json({ message: 'Error creating contact' });
   }
-  const out = await (await coll()).insertOne({
-    firstName,
-    lastName,
-    email,
-    favoriteColor,
-    birthday,
-  });
-  // Return the newly created id
-  res.status(201).json({ id: out.insertedId });
 }
 
+// PUT /contacts/:id → replace
 export async function updatePut(req, res) {
-  const id = req.params.id;
-  if (!ObjectId.isValid(id)) return res.status(400).json({ error: 'invalid id' });
-  const { firstName, lastName, email, favoriteColor, birthday } = req.body;
-  if (!firstName || !lastName || !email || !favoriteColor || !birthday) {
-    return res.status(400).json({ error: 'PUT requires all fields' });
+  try {
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid id' });
+    }
+
+    const { firstName, lastName, email, favoriteColor, birthday } = req.body;
+
+    if (!firstName || !lastName || !email || !favoriteColor || !birthday) {
+      return res
+        .status(400)
+        .json({ message: 'PUT requires all fields' });
+    }
+
+    const r = await coll().replaceOne(
+      { _id: new ObjectId(id) },
+      { firstName, lastName, email, favoriteColor, birthday }
+    );
+
+    if (!r.matchedCount) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    // Success with no content
+    res.status(204).end();
+  } catch (err) {
+    console.error('Error replacing contact:', err);
+    res.status(500).json({ message: 'Error replacing contact' });
   }
-  const r = await (await coll()).replaceOne(
-    { _id: new ObjectId(id) },
-    { firstName, lastName, email, favoriteColor, birthday }
-  );
-  if (!r.matchedCount) return res.status(404).json({ error: 'not found' });
-  // Success with no content
-  res.status(204).end();
 }
 
+// DELETE /contacts/:id → delete
 export async function removeOne(req, res) {
-  const id = req.params.id;
-  if (!ObjectId.isValid(id)) return res.status(400).json({ error: 'invalid id' });
-  const r = await (await coll()).deleteOne({ _id: new ObjectId(id) });
-  if (!r.deletedCount) return res.status(404).json({ error: 'not found' });
-  res.status(204).end();
+  try {
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid id' });
+    }
+
+    const r = await coll().deleteOne({ _id: new ObjectId(id) });
+
+    if (!r.deletedCount) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    res.status(204).end();
+  } catch (err) {
+    console.error('Error deleting contact:', err);
+    res.status(500).json({ message: 'Error deleting contact' });
+  }
 }
