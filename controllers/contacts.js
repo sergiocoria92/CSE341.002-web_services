@@ -19,13 +19,11 @@ export async function getAll(_req, res) {
 export async function getById(req, res) {
   try {
     const { id } = req.params;
-
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid id' });
     }
 
     const doc = await coll().findOne({ _id: new ObjectId(id) });
-
     if (!doc) {
       return res.status(404).json({ message: 'Contact not found' });
     }
@@ -54,7 +52,6 @@ export async function createOne(req, res) {
       birthday,
     });
 
-    // Return the newly created id
     res.status(201).json({ id: out.insertedId });
   } catch (err) {
     console.error('Error creating contact:', err);
@@ -66,7 +63,6 @@ export async function createOne(req, res) {
 export async function updatePut(req, res) {
   try {
     const { id } = req.params;
-
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid id' });
     }
@@ -88,7 +84,6 @@ export async function updatePut(req, res) {
       return res.status(404).json({ message: 'Contact not found' });
     }
 
-    // Success with no content
     res.status(204).end();
   } catch (err) {
     console.error('Error replacing contact:', err);
@@ -100,7 +95,6 @@ export async function updatePut(req, res) {
 export async function removeOne(req, res) {
   try {
     const { id } = req.params;
-
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid id' });
     }

@@ -10,7 +10,6 @@ import {
 
 const router = Router();
 
-// Solo definimos las rutas y a qué controlador apuntan
 router.get('/', getAll);
 router.get('/:id', getById);
 router.post('/', createOne);
